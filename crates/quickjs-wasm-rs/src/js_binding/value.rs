@@ -22,6 +22,22 @@ pub enum BigInt {
     Unsigned(u64),
 }
 
+impl BigInt {
+    pub fn as_i64(&self) -> i64 {
+        match self {
+            BigInt::Signed(v) => *v,
+            BigInt::Unsigned(v) => *v as i64,
+        }
+    }
+
+    pub fn as_u64(&self) -> u64 {
+        match self {
+            BigInt::Signed(v) => *v as u64,
+            BigInt::Unsigned(v) => *v,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Value {
     pub(super) context: *mut JSContext,
@@ -96,7 +112,7 @@ impl Value {
         unsafe { JS_BigIntSigned(self.context, self.value) == 1 }
     }
 
-    pub fn bigint_as_i64(&self) -> Result<i64> {
+    fn bigint_as_i64(&self) -> Result<i64> {
         let mut ret = 0_i64;
         let err = unsafe { JS_BigIntToInt64(self.context, &mut ret, self.value) };
         if err < 0 {
@@ -105,7 +121,7 @@ impl Value {
         Ok(ret)
     }
 
-    pub fn bigint_as_u64(&self) -> Result<u64> {
+    fn bigint_as_u64(&self) -> Result<u64> {
         let mut ret = 0_u64;
         let err = unsafe { JS_BigIntToUint64(self.context, &mut ret, self.value) };
         if err < 0 {
